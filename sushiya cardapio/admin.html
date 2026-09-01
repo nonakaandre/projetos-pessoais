@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sushiya — Painel</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/stamp.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body{ min-height:100vh; }
+
+  /* ---------- login ---------- */
+  #login-screen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:340px;
+    background:var(--card); border:1px solid var(--hair);
+    padding:34px 28px 28px; text-align:center;
+  }
+  .login-card .logo-mini{ height:30px; margin:0 auto 22px; }
+  .login-card h1{ font-size:18px; margin-bottom:22px; font-weight:600; }
+  .field{ text-align:left; margin-bottom:14px; }
+  .field label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; letter-spacing:.03em; }
+  .field input, .field textarea, .field select{
+    width:100%; background:var(--bg-elev); border:1px solid var(--hair); color:var(--text);
+    padding:11px 12px; font-family:inherit; font-size:14px; border-radius:var(--radius);
+  }
+  .field textarea{ resize:vertical; min-height:64px; }
+  #login-form .btn{ width:100%; margin-top:6px; }
+  .error-msg{ display:none; color:#e08a8a; font-size:12.5px; margin:-6px 0 14px; text-align:left; }
+  .demo-notice{
+    display:none; background:var(--red-wash); border:1px solid var(--hair);
+    color:var(--muted); font-size:12px; padding:10px 12px; margin-bottom:18px; text-align:left; line-height:1.5;
+  }
+
+  /* ---------- dashboard shell ---------- */
+  #dashboard{ display:none; }
+  .topbar{
+    position:sticky; top:0; z-index:30;
+    background:rgba(10,10,9,.92); border-bottom:1px solid var(--hair);
+  }
+  .topbar-inner{ display:flex; align-items:center; justify-content:space-between; padding:14px 20px; }
+  .logo-mini{ height:24px; }
+  .topbar-title{ font-size:12px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+
+  .subnav{ display:flex; gap:6px; padding:14px 20px 0; }
+  .subnav button{
+    background:none; border:none; cursor:pointer;
+    font-family:'Zen Kaku Gothic New', sans-serif; font-weight:700; font-size:13px;
+    letter-spacing:.03em; color:var(--muted); padding:9px 4px; border-bottom:2px solid transparent;
+    margin-right:18px;
+  }
+  .subnav button.active{ color:var(--text); border-bottom-color:var(--red); }
+
+  .panel{ padding:18px 20px 100px; }
+
+  /* ---------- item list ---------- */
+  .empty-state{ display:none; color:var(--muted); text-align:center; padding:50px 20px; font-size:14px; }
+  .item-card{
+    display:flex; flex-direction:column; gap:11px;
+    padding:15px 0; border-bottom:1px solid var(--hair);
+  }
+  .item-card-main{ display:flex; align-items:flex-start; gap:13px; }
+  .item-thumb{ width:46px; height:46px; flex:none; border-radius:8px; overflow:hidden; }
+  .item-info{ flex:1; min-width:0; }
+  .item-info-top{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+  .item-info-top h4{ font-family:'Shippori Mincho', serif; font-size:15px; margin:0; font-weight:600; }
+  .item-info .muted{ color:var(--muted); font-size:12.5px; margin:3px 0 0; }
+  .tag{
+    font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    border:1px solid var(--hair); color:var(--muted); padding:2px 7px; border-radius:20px;
+    white-space:nowrap;
+  }
+  .tag-red{ background:var(--red-wash); border-color:var(--red); color:#e0a0a0; }
+  .tag-muted{ opacity:.6; }
+  .item-actions{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-left:59px;
+  }
+  .item-actions-buttons{ display:flex; gap:8px; }
+  .btn-sm{ padding:8px 12px; font-size:12px; }
+
+  /* switch toggle */
+  .switch{ position:relative; display:inline-block; width:38px; height:22px; cursor:pointer; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch-track{
+    position:absolute; inset:0; background:var(--hair); border-radius:20px; transition:background .15s;
+  }
+  .switch-track::before{
+    content:""; position:absolute; width:16px; height:16px; left:3px; top:3px;
+    background:var(--muted); border-radius:50%; transition:transform .15s, background .15s;
+  }
+  .switch input:checked + .switch-track{ background:var(--red-wash); border:1px solid var(--red); }
+  .switch input:checked + .switch-track::before{ transform:translateX(16px); background:var(--red-bright); }
+
+  /* floating add button */
+  .fab{
+    position:fixed; right:20px; bottom:24px; z-index:20;
+    box-shadow:0 6px 22px rgba(0,0,0,.5);
+  }
+
+  /* ---------- modal ---------- */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.66);
+    align-items:flex-end; justify-content:center; z-index:100; backdrop-filter:blur(2px);
+  }
+  @media(min-width:640px){ .modal-overlay{ align-items:center; } }
+  .modal-card{
+    width:100%; max-width:480px; max-height:92vh; overflow-y:auto;
+    background:var(--bg-elev); border:1px solid var(--hair); border-bottom:none;
+  }
+  @media(min-width:640px){ .modal-card{ border-bottom:1px solid var(--hair); } }
+  .modal-header{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--hair); }
+  .modal-header h3{ font-size:17px; font-weight:600; }
+  .modal-body{ padding:18px 20px; }
+  .modal-footer{ display:flex; gap:10px; padding:16px 20px 20px; border-top:1px solid var(--hair); }
+  .modal-footer .btn{ flex:1; }
+
+  .foto-upload{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .foto-preview{
+    width:72px; height:72px; flex:none; border-radius:8px; overflow:hidden;
+  }
+  .row-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .radio-group{ display:flex; gap:10px; }
+  .radio-pill{
+    flex:1; border:1px solid var(--hair); padding:10px; text-align:center; font-size:13px;
+    border-radius:var(--radius); cursor:pointer; color:var(--muted);
+  }
+  .checkbox-row{ display:flex; align-items:center; gap:10px; margin-top:4px; }
+  .checkbox-row label{ font-size:13px; color:var(--text); }
+
+  /* ---------- qr panel ---------- */
+  .qr-box{
+    background:var(--card); border:1px solid var(--hair);
+    padding:32px 20px; text-align:center; max-width:340px; margin:20px auto 0;
+  }
+  .qr-box canvas{ margin:0 auto 18px; border-radius:6px; }
+  #qr-url{ font-size:12.5px; color:var(--muted); word-break:break-all; margin-bottom:18px; }
+  .qr-hint{ max-width:420px; margin:18px auto 0; text-align:center; color:var(--muted); font-size:12.5px; line-height:1.7; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-screen">
+  <div class="login-card">
+    <img class="logo-mini" src="assets/logo-wordmark.png" alt="Sushiya">
+    <h1>Painel administrativo</h1>
+
+    <p class="demo-notice" id="demo-notice">
+      <strong>Modo demonstração.</strong> O Supabase ainda não foi configurado em <code>js/config.js</code>,
+      então as alterações ficam salvas só neste navegador. Veja o README do projeto para publicar de verdade.
+    </p>
+
+    <form id="login-form">
+      <div class="field">
+        <label for="f-email">E-mail</label>
+        <input id="f-email" type="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="f-senha">Senha</label>
+        <input id="f-senha" type="password" autocomplete="current-password" required>
+      </div>
+      <p class="error-msg" id="login-error">E-mail ou senha incorretos.</p>
+      <button class="btn btn-primary" type="submit">Entrar</button>
+    </form>
+    <button class="btn" id="demo-enter-btn" style="width:100%;margin-top:10px;">Entrar em modo demonstração</button>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dashboard">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <img class="logo-mini" src="assets/logo-wordmark.png" alt="Sushiya">
+      <button class="btn btn-ghost btn-sm" id="logout-btn">Sair</button>
+    </div>
+    <nav class="subnav">
+      <button id="nav-itens" class="active">Itens</button>
+      <button id="nav-qr">QR Code</button>
+    </nav>
+  </header>
+
+  <section class="panel" id="panel-itens">
+    <div id="itens-list"></div>
+    <p class="empty-state" id="empty-state">Nenhum item cadastrado ainda. Toque em "+" para adicionar o primeiro.</p>
+    <button class="btn btn-primary fab" id="new-item-btn">+ Novo item</button>
+  </section>
+
+  <section class="panel" id="panel-qr" style="display:none;">
+    <div class="qr-box">
+      <canvas id="qr-canvas"></canvas>
+      <p id="qr-url"></p>
+      <button class="btn btn-primary" id="qr-download" style="width:100%;">Baixar PNG</button>
+    </div>
+    <p class="qr-hint">Imprima este QR Code e deixe à disposição nas mesas. Ele aponta para o endereço definido em <code>MENU_URL</code>, dentro de <code>js/config.js</code> — atualize lá quando o site for publicado no endereço final.</p>
+  </section>
+</div>
+
+<!-- ===== MODAL: NOVO / EDITAR ITEM ===== -->
+<div class="modal-overlay" id="item-modal">
+  <div class="modal-card">
+    <form id="item-form">
+      <div class="modal-header">
+        <h3 id="modal-title">Novo item</h3>
+        <button type="button" class="btn btn-ghost btn-sm" id="cancel-btn">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="f-id">
+
+        <div class="foto-upload">
+          <div class="photo-ph foto-preview" id="foto-preview"><span class="ph-label">sem foto</span></div>
+          <div>
+            <label class="btn btn-ghost btn-sm" for="f-foto" style="cursor:pointer;">Escolher foto</label>
+            <input type="file" id="f-foto" accept="image/*" style="display:none;">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-nome">Nome do item</label>
+          <input id="f-nome" type="text" required placeholder="Ex: Temaki Skin">
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="f-categoria">Categoria</label>
+            <input id="f-categoria" type="text" required list="categorias-sugeridas" placeholder="Ex: Temaki">
+            <datalist id="categorias-sugeridas">
+              <option value="Entradas"><option value="Sashimi"><option value="Nigiri">
+              <option value="Temaki"><option value="Hot Roll"><option value="Combinados">
+              <option value="Sobremesas"><option value="Bebidas">
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="f-preco">Preço (R$)</label>
+            <input id="f-preco" type="number" min="0" step="0.01" required placeholder="0,00">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-descricao">Descrição curta</label>
+          <textarea id="f-descricao" placeholder="Ingredientes, destaque do prato..."></textarea>
+        </div>
+
+        <div class="field">
+          <label>Onde aparece</label>
+          <select id="f-tipo">
+            <option value="fixo">Cardápio fixo</option>
+            <option value="novidade">Novidade da semana</option>
+          </select>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="f-ativo" checked>
+          <label for="f-ativo">Visível para o cliente</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Salvar item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

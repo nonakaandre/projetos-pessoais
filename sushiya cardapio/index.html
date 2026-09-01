@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Sushiya — Cardápio</title>
+<meta name="description" content="Cardápio digital Sushiya em Casa — novidades da semana e cardápio completo.">
+<link rel="icon" href="assets/stamp.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* ---------- específico desta página ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,10,9,.88);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--hair);
+  }
+  .topbar-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px;
+  }
+  .logo-mini{ height:26px; width:auto; }
+  .tabs{ display:flex; gap:4px; }
+  .tab{
+    background:none; border:none; cursor:pointer;
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--muted); padding:8px 10px; border-bottom:2px solid transparent;
+  }
+  .tab.active{ color:var(--text); border-bottom-color:var(--red); }
+
+  .hero{ padding:34px 20px 6px; }
+  .hero-tagline{
+    font-family:'Shippori Mincho', serif;
+    font-size:clamp(20px,4.4vw,27px);
+    line-height:1.42;
+    margin:8px 0 0;
+    max-width:32ch;
+  }
+
+  .section{ padding:40px 20px 8px; }
+  .section h2{ font-size:26px; display:flex; flex-direction:column; align-items:flex-start; }
+
+  /* novidades — carrossel horizontal com snap */
+  .novidades-track{
+    display:flex; gap:14px; margin-top:22px;
+    overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:6px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .novidades-track::-webkit-scrollbar{ height:0; }
+  .novidade-card{
+    flex:0 0 74%; scroll-snap-align:start;
+    background:var(--card); border:1px solid var(--hair);
+  }
+  @media(min-width:640px){ .novidade-card{ flex-basis:320px; } }
+  .novidade-photo{ aspect-ratio:4/5; position:relative; }
+  .badge-novo{
+    position:absolute; top:10px; left:10px; z-index:2;
+    background:var(--red); color:#fbf6ea;
+    font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    padding:5px 9px;
+  }
+  .novidade-body{ padding:14px 16px 18px; }
+  .novidade-body h3{ font-size:18px; margin-bottom:4px; }
+  .novidade-body .muted{ color:var(--muted); font-size:13.5px; margin:0 0 10px; }
+  .preco{ color:var(--red-bright); font-weight:700; font-size:14px; margin:0; }
+
+  /* cardápio — lista agrupada por categoria */
+  .cat-group{ margin-top:30px; }
+  .cat-title{ margin-bottom:10px; }
+  .cardapio-row{
+    display:flex; align-items:center; gap:14px;
+    padding:13px 0; border-bottom:1px solid var(--hair);
+  }
+  .cardapio-thumb{ width:52px; height:52px; flex:none; border-radius:50%; overflow:hidden; }
+  .cardapio-thumb img{ border-radius:50%; }
+  .cardapio-row-text{ flex:1; min-width:0; }
+  .cardapio-row-text h4{
+    font-family:'Shippori Mincho', serif; font-weight:600; font-size:15.5px; margin:0;
+  }
+  .cardapio-row-text .muted{ color:var(--muted); font-size:13px; margin:3px 0 0; }
+  .cardapio-row-preco{ flex:none; font-weight:700; font-size:13.5px; color:var(--text); }
+
+  .footer{
+    margin-top:60px; padding:34px 20px 50px;
+    border-top:1px solid var(--hair);
+    display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+  }
+  .footer .muted{ color:var(--muted-2); font-size:12.5px; }
+  .footer-links{ display:flex; gap:18px; }
+  .footer-links a{ font-size:12.5px; font-weight:700; letter-spacing:.04em; text-decoration:none; color:var(--muted); }
+  .footer-links a:hover{ color:var(--text); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <img class="logo-mini" src="assets/logo-wordmark.png" alt="Sushiya">
+    <nav class="tabs" aria-label="Seções do cardápio">
+      <button class="tab active" data-target="novidades">Novidades</button>
+      <button class="tab" data-target="cardapio">Cardápio</button>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+  <section class="hero wrap">
+    <p class="eyebrow">Marília · SP</p>
+    <p class="hero-tagline">Sushi de verdade, sem pressa. Veja o que chegou agora — e o cardápio completo da casa.</p>
+  </section>
+
+  <section id="novidades" class="wrap section">
+    <h2>Novidades</h2>
+    <svg class="brush-svg" width="70" height="13" viewBox="0 0 70 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 8.5C15 2 30 1.5 41 5.5C50 8.8 58 9 68 4" stroke="#9c3030" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <div class="novidades-track" id="novidades-track" aria-live="polite"></div>
+  </section>
+
+  <div class="wrap">
+    <div class="divider"><img class="stamp-mark" src="assets/stamp.png" alt=""></div>
+  </div>
+
+  <section id="cardapio" class="wrap section">
+    <h2>Cardápio</h2>
+    <svg class="brush-svg" width="70" height="13" viewBox="0 0 70 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 8.5C15 2 30 1.5 41 5.5C50 8.8 58 9 68 4" stroke="#9c3030" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <div id="cardapio-groups"></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <img class="logo-mini" src="assets/logo-wordmark.png" alt="Sushiya" style="height:20px;opacity:.75">
+  <p class="muted">Sushiya em Casa — Marília · SP</p>
+  <div class="footer-links">
+    <a href="https://wa.me/5514996015899" target="_blank" rel="noopener">WhatsApp</a>
+    <a href="https://www.instagram.com/sushiyaemcasa/" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/data.js"></script>
+<script src="js/cardapio.js"></script>
+</body>
+</html>
